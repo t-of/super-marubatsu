@@ -11,7 +11,7 @@ let net = null;      // SMNet.load(...) の戻り値（{ evaluate }）。読め�
 let hasNet = false;
 
 // net が読めないときの段階 4・5 の代わり（素の MCTS、時間で決める版。仕様「6. AI／重みのファイル」）
-const NO_NET_FALLBACK = { 4: 300, 5: 2000 };
+const NO_NET_FALLBACK = { 4: 500, 5: 2000 };
 
 function levelOpts(level) {
   const base = SMAI.LEVELS[level - 1];

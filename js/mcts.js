@@ -253,12 +253,14 @@
     return { root, iterations, ms: now() - t0 };
   }
 
-  // ---- 強さの段階（仕様「6. AI」の表。回数は仮値。4・5 は net が要る） ----
+  // ---- 強さの段階（仕様「6. AI」の表。tools/arena.js で測った Elo（M1k = 0）を README「AI」に貼り、
+  //      段階の間がだいたい 100〜200 の差になるよう決めた: つよい 410 → 達人 513 → 最強 601（見込み）。
+  //      段階 4 は当初 iterations: 100 だったが、それだと段階 3 より弱かった（測って分かった）ので時間ぎめに変えた ----
   const LEVELS = [
     { id: 1, name: 'はじめて', iterations: 50, randomRate: 0.3, needsNet: false },
     { id: 2, name: 'ふつう', iterations: 1000, needsNet: false },
     { id: 3, name: 'つよい', iterations: 20000, needsNet: false },
-    { id: 4, name: '達人', iterations: 100, needsNet: true },
+    { id: 4, name: '達人', timeMs: 500, needsNet: true },
     { id: 5, name: '最強', timeMs: 2000, needsNet: true },
   ];
 

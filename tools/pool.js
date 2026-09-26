@@ -118,15 +118,20 @@ if (!isMainThread) {
     return { inputs, policies, values, count: recs.length, winner };
   }
 
-  // 2 つの側を対局させ、勝者（0 = a が先手として勝った、など呼ぶ側で解釈）を返す
+  // 2 つの側を対局させ、勝者（0 = a が先手として勝った、など呼ぶ側で解釈）を返す。
+  // 側は { net?, iterations? , timeMs? }。どちらも無ければ既定の iterations を使う
   function playMatch({ seed, opening, a, b, iterations = 200 }) {
     const rand = SMAI.makeRng(seed);
-    const sides = [a, b].map((s) => (s && s.net ? { net: SMNet.load(s.net), iterations: s.iterations || iterations } : { net: null, iterations: s && s.iterations || iterations }));
+    const sides = [a, b].map((s) => ({
+      net: s && s.net ? SMNet.load(s.net) : null,
+      iterations: s && (s.iterations || s.timeMs) ? s.iterations : iterations,
+      timeMs: s && s.timeMs,
+    }));
     let state = SMGame.newGame();
     openingMoves(state, opening);
     while (!state.over) {
       const side = sides[state.turn];
-      const { root } = SMAI.runSearch(state, { iterations: side.iterations, net: side.net }, rand);
+      const { root } = SMAI.runSearch(state, { iterations: side.iterations, timeMs: side.timeMs, net: side.net }, rand);
       const move = SMAI.pickRootMove(root, rand);
       SMGame.place(state, move);
     }
