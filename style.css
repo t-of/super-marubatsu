@@ -1,0 +1,208 @@
+:root {
+  --bg: #1c2521;          /* 黒板の緑がかった墨色 */
+  --surface: #25302b;
+  --line: rgba(236, 240, 230, 0.13);
+  --thick: rgba(236, 240, 230, 0.4);   /* 小盤どうしの太い線 */
+  --thin: rgba(236, 240, 230, 0.14);   /* 小盤の中の細い線 */
+  --fg: #eef1ea;
+  --muted: #9ea8a1;
+  --o: #f1cd6a;           /* ○: 黄色いチョーク */
+  --x: #eef1ea;           /* ×: 白いチョーク */
+
+  --wak-bg: #25302b;
+  --wak-fg: #eef1ea;
+  --wak-muted: #9ea8a1;
+  --wak-line: rgba(236, 240, 230, 0.14);
+  --wak-accent: #f1cd6a;
+  --wak-accent-fg: #2a2410;
+}
+
+* { box-sizing: border-box; }
+
+/* Safari 26 の上下バーの色は html の背景から取られる。body と同じ色にしておく */
+html { background-color: var(--bg); -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background-color: var(--bg);
+  color: var(--fg);
+  font-family: system-ui, -apple-system, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+button { font: inherit; color: inherit; }
+[hidden] { display: none !important; }
+
+.app {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding:
+    max(12px, env(safe-area-inset-top))
+    max(12px, env(safe-area-inset-right))
+    max(12px, env(safe-area-inset-bottom))
+    max(12px, env(safe-area-inset-left));
+  touch-action: manipulation;   /* ダブルタップ拡大を止める */
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.btn {
+  min-height: 48px;
+  padding: 0 18px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn--main { border-color: transparent; background: var(--o); color: #2a2410; }
+.btn--quiet { background: transparent; }
+.btn:disabled { opacity: 0.4; cursor: default; }
+.btn small { display: block; font-size: 11px; font-weight: 400; color: var(--muted); }
+.btn--main small { color: #6b5c26; }
+.pill {
+  min-height: 44px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.pill[aria-pressed="false"] { color: var(--muted); }
+.link-btn { display: block; margin: 8px auto 0; border: 0; background: none; color: var(--muted); font-size: 13px; text-decoration: underline; cursor: pointer; }
+.credit { text-align: center; font-size: 12px; color: var(--muted); }
+.credit a { color: inherit; }
+
+/* ---- タイトル ---- */
+.title { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; }
+.title__main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center; }
+.board--demo { width: 128px; margin-bottom: 6px; pointer-events: none; }
+.title__name { margin: 0; font-size: 30px; letter-spacing: 0.02em; font-weight: 800; }
+.title__lead { margin: 0 0 12px; color: var(--muted); font-size: 14px; }
+.title__buttons { display: grid; gap: 10px; width: min(280px, 100%); }
+.title__stats { min-height: 1.5em; margin: 14px 0 0; font-size: 13px; color: var(--muted); }
+.title__foot { display: grid; gap: 12px; padding-top: 16px; }
+.title__kit { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; }
+
+@media (max-height: 620px) {
+  .board--demo { display: none; }
+}
+
+/* ---- 盤（対局・タイトルの見本で共通） ---- */
+.board {
+  position: relative;
+  aspect-ratio: 1;
+  display: grid;
+  grid-template: repeat(3, 1fr) / repeat(3, 1fr);
+  gap: 3px;
+  background: var(--thick);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.sub {
+  position: relative;
+  display: grid;
+  grid-template: repeat(3, 1fr) / repeat(3, 1fr);
+  gap: 1px;
+  background: var(--thin);
+}
+.cell {
+  position: relative;
+  margin: 0; padding: 0; border: 0;
+  background: var(--bg);      /* 打てない小盤は暗いまま */
+  transition: background 0.15s;
+  display: flex; align-items: center; justify-content: center;
+}
+/* 打てる小盤は明るく。フリーターンなら決着していない小盤が全部これになる */
+.sub.playable .cell { background: var(--surface); }
+.sub.playable.flash .cell { animation: sub-flash 0.5s ease-out; }
+@keyframes sub-flash { from { background: var(--o); } }
+#board .cell { cursor: pointer; touch-action: manipulation; }
+#board .cell:disabled { cursor: default; }
+@media (hover: hover) {
+  #board .sub.playable .cell:not(:disabled):hover { background: color-mix(in srgb, var(--surface) 80%, white 8%); }
+}
+.cell.shake { animation: shake 0.28s; }
+@keyframes shake { 25% { transform: translateX(-3px); } 50% { transform: translateX(3px); } 75% { transform: translateX(-1.5px); } }
+
+.mark { width: 62%; height: 62%; }
+.mark.o { color: var(--o); }
+.mark.x { color: var(--x); }
+.glyph { fill: none; stroke: currentColor; stroke-width: 10; stroke-linecap: round; }
+.mark.pending { opacity: 0.4; }
+.cell.last .mark { filter: drop-shadow(0 0 3px currentColor); }
+
+/* 決着した小盤: 大きな ×/○ を上から重ねる。中の印は薄く残す */
+.sub-owner {
+  position: absolute; inset: 0; z-index: 2;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(28, 37, 33, 0.72);
+  pointer-events: none;
+}
+.sub-owner svg { width: 68%; height: 68%; }
+.sub.owner-x .sub-owner svg { color: var(--x); }
+.sub.owner-o .sub-owner svg { color: var(--o); }
+.sub.drawn .sub-owner { background: rgba(120, 120, 120, 0.55); }
+.sub:not(.taken):not(.drawn) .sub-owner { display: none; }
+.sub.taken .cell .mark, .sub.drawn .cell .mark { opacity: 0.55; }
+
+.board__win { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 3; overflow: visible; display: none; }
+.board[data-win] .board__win { display: block; }
+.board__win line { stroke-width: 1.6; stroke-linecap: round; stroke-dasharray: 140; opacity: 0.95; animation: draw-line 0.35s ease-out both; }
+.board[data-win="o"] .board__win line { stroke: var(--o); filter: drop-shadow(0 0 2px var(--o)); }
+.board[data-win="x"] .board__win line { stroke: var(--x); filter: drop-shadow(0 0 2px var(--x)); }
+@keyframes draw-line { from { stroke-dashoffset: 140; } to { stroke-dashoffset: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .sub, .cell.shake, .board__win line, .sub.playable.flash { animation: none; transition: none; }
+}
+
+/* ---- 対局 ---- */
+.game { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px; }
+.top { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; gap: 8px; }
+.icon-btn {
+  width: 44px; height: 44px;
+  border: 1px solid var(--line); border-radius: 12px; background: var(--surface);
+  font-size: 20px; line-height: 1; cursor: pointer;
+}
+.turn { margin: 0; text-align: center; font-size: 16px; font-weight: 700; }
+.ply { margin: 0; text-align: right; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.free-turn { margin: 0; text-align: center; font-size: 12px; color: var(--o); min-height: 1.2em; }
+
+.board-wrap { flex: 1; min-height: 0; container-type: size; display: flex; align-items: center; justify-content: center; }
+#board { width: min(100cqw, 100cqh, 440px); }
+
+/* 結果: 盤の上に、下寄せのカードで重ねる（盤は見えたまま） */
+.game__buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.result {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 4;
+  width: min(420px, 100%); margin: 0 auto;
+  padding: 16px; border-radius: 18px; border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.35);
+  text-align: center;
+}
+.result p { margin: 0 0 4px; }
+.result__head { font-size: 24px; font-weight: 800; }
+.result__head.o { color: var(--o); }
+.result__sub { font-size: 13px; color: var(--muted); }
+.result__buttons { display: grid; grid-template-columns: 1.2fr 0.8fr 1.2fr; gap: 8px; margin-top: 12px; }
+.result__buttons .btn { padding: 0 6px; white-space: nowrap; font-size: 14px; }
+
+/* ---- メニュー・遊び方（dialog 共通） ---- */
+.menu, .help {
+  width: min(420px, calc(100% - 24px)); max-height: calc(100dvh - 48px);
+  padding: 20px; border: 1px solid var(--line); border-radius: 18px;
+  background: var(--surface); color: var(--fg); line-height: 1.65; font-size: 15px;
+}
+.menu::backdrop, .help::backdrop { background: rgba(0, 0, 0, 0.6); }
+.menu h2, .help h2 { margin: 0 0 8px; font-size: 20px; }
+.menu h3 { margin: 16px 0 8px; font-size: 14px; color: var(--muted); }
+.menu__list { display: grid; gap: 8px; }
+.menu .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 10px 0; font-size: 14px; }
+.menu .btn { width: 100%; margin-top: 8px; }
+.help ol { margin: 0; padding-left: 1.3em; }
+.help li + li { margin-top: 4px; }
+.help__note { margin: 12px 0 0; font-size: 13px; color: var(--muted); }
+.help .btn { width: 100%; margin-top: 16px; }

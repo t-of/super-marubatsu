@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1c2521">
+  <meta name="description" content="9 つの三目並べを 3×3 に並べた「スーパー三目並べ」（英語では Ultimate Tic-Tac-Toe）。打ったマスの位置で相手が次に打つ盤が決まるので、先を読んで送り込む。1 台の端末でふたり対戦。">
+  <title>スーパーマルバツゲーム — スーパー三目並べ：9 つの盤で 3 つ並べる</title>
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="スーパーマルバツゲーム">
+  <meta property="og:title" content="スーパーマルバツゲーム — スーパー三目並べ：9 つの盤で 3 つ並べる">
+  <meta property="og:description" content="9 つの三目並べを 3×3 に並べた「スーパー三目並べ」（英語では Ultimate Tic-Tac-Toe）。打ったマスの位置で相手が次に打つ盤が決まるので、先を読んで送り込む。1 台の端末でふたり対戦。">
+  <meta property="og:url" content="https://t-of.github.io/super-marubatsu/">
+  <meta property="og:image" content="https://t-of.github.io/super-marubatsu/icons/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:locale" content="ja_JP">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <!-- apple-mobile-web-app-status-bar-style は付けない（black-translucent だと iOS 26 で上部が隠れる） -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="スーパー○×">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icons/icon.svg" type="image/svg+xml">
+  <link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png">
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+
+  <link rel="stylesheet" href="./webapp-kit/webapp-kit.css">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <main class="app">
+    <!-- タイトル -->
+    <section class="title" id="title">
+      <div class="title__main">
+        <div class="board board--demo" id="demo" aria-hidden="true"></div>
+        <h1 class="title__name">スーパーマルバツゲーム</h1>
+        <p class="title__lead">スーパー三目並べ：9 つの盤で 3 つ並べる</p>
+        <div class="title__buttons">
+          <button class="btn btn--main" id="continue" hidden>続きから</button>
+          <button class="btn btn--main" id="play-pvp">ふたりで</button>
+          <button class="btn" id="play-ai" disabled aria-disabled="true">AI と対戦 <small>準備中</small></button>
+          <button class="btn btn--quiet" id="howto">遊び方</button>
+        </div>
+        <p class="title__stats" id="stats"></p>
+      </div>
+      <div class="title__foot">
+        <div class="title__kit">
+          <button class="pill" data-wak="install" hidden>アプリにする</button>
+          <button class="pill" data-wak="share">共有</button>
+          <button class="pill" id="sound-btn"><span>音 オン</span></button>
+        </div>
+        <footer class="credit"><a href="/">T.OF...</a> のアプリ</footer>
+      </div>
+    </section>
+
+    <!-- 対局 -->
+    <section class="game" id="game" hidden>
+      <header class="top">
+        <button class="icon-btn" id="menu-open" aria-label="メニュー">☰</button>
+        <p class="turn" id="turn" aria-live="polite"></p>
+        <p class="ply" id="ply"></p>
+      </header>
+      <p class="free-turn" id="free-turn" hidden>どこでも</p>
+      <div class="board-wrap"></div>
+      <div class="game__buttons">
+        <button class="btn" id="undo-btn">1 手戻す</button>
+        <button class="btn" id="menu-open2">メニュー</button>
+      </div>
+
+      <!-- 結果 -->
+      <div class="result" id="result" hidden>
+        <p class="result__head" id="result-head"></p>
+        <p class="result__sub" id="result-sub"></p>
+        <div class="result__buttons">
+          <button class="btn btn--main" id="again">もう一度</button>
+          <button class="btn" id="share-result">共有</button>
+          <button class="btn" id="to-title">タイトルへ</button>
+        </div>
+        <button class="link-btn" id="peek">盤を見る</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- メニュー -->
+  <dialog class="menu" id="menu">
+    <h2>メニュー</h2>
+    <div class="menu__list">
+      <button class="btn" id="menu-resume">再開</button>
+      <button class="btn" id="menu-restart">はじめから</button>
+      <button class="btn" id="menu-resign">投了</button>
+    </div>
+    <h3>設定</h3>
+    <label class="row"><span>音</span>
+      <button class="pill" id="menu-sound"><span>オン</span></button>
+    </label>
+    <label class="row"><span>音量</span>
+      <input type="range" id="menu-volume" min="0" max="1" step="0.05">
+    </label>
+    <label class="row"><span>確定タップ</span>
+      <button class="pill" id="menu-confirm" aria-pressed="false"><span>オフ</span></button>
+    </label>
+    <button class="btn btn--main" id="menu-title">タイトルへ</button>
+    <button class="btn btn--quiet" id="menu-close">閉じる</button>
+  </dialog>
+
+  <!-- 遊び方 -->
+  <dialog class="help" id="help">
+    <h2>遊び方</h2>
+    <ol>
+      <li>9 つの三目並べ。小さな盤で先に 3 つ並べると、その盤が自分のものになります。</li>
+      <li><b>打ったマスの位置が、相手の行き先。</b>右上に打てば、相手は右上の盤に打ちます。</li>
+      <li>取った盤で大きく 3 つ並べたら勝ち。行き先の盤がすでに決着していたら、決着していない盤ならどこにでも打てます。</li>
+    </ol>
+    <p class="help__note">決着した盤には打てません。盤が引き分け（誰の印もそろわないまま埋まる）のときも同じです。「確定タップ」をオンにすると、1 回目のタップで薄く印を置き、同じマスをもう一度タップして確定します。</p>
+    <button class="btn btn--main" id="help-close">閉じる</button>
+  </dialog>
+
+  <script src="./webapp-kit/webapp-kit.js"></script>
+  <script src="./js/game.js"></script>
+  <script src="./main.js"></script>
+</body>
+</html>

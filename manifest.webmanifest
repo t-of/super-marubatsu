@@ -1,0 +1,19 @@
+{
+  "id": "./",
+  "name": "スーパーマルバツゲーム — スーパー三目並べ：9 つの盤で 3 つ並べる",
+  "short_name": "スーパー○×",
+  "description": "9 つの三目並べを 3×3 に並べた「スーパー三目並べ」（英語では Ultimate Tic-Tac-Toe）。打ったマスの位置で相手が次に打つ盤が決まるので、先を読んで送り込む。1 台の端末でふたり対戦。",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1c2521",
+  "theme_color": "#1c2521",
+  "lang": "ja",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
