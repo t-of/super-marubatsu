@@ -2,8 +2,8 @@
   --bg: #1c2521;          /* 黒板の緑がかった墨色 */
   --surface: #25302b;
   --line: rgba(236, 240, 230, 0.13);
-  --thick: rgba(236, 240, 230, 0.4);   /* 小盤どうしの太い線 */
-  --thin: rgba(236, 240, 230, 0.14);   /* 小盤の中の細い線 */
+  --thick: rgba(236, 240, 230, 0.85);  /* 小盤どうしの太い線 */
+  --thin: #3a4540;                     /* 小盤の中の細い線。透けると下の太い線の色が出るので不透明に */
   --fg: #eef1ea;
   --muted: #9ea8a1;
   --o: #f1cd6a;           /* ○: 黄色いチョーク */
@@ -109,7 +109,7 @@ button { font: inherit; color: inherit; }
   aspect-ratio: 1;
   display: grid;
   grid-template: repeat(3, 1fr) / repeat(3, 1fr);
-  gap: 3px;
+  gap: 5px;
   background: var(--thick);
   border-radius: 10px;
   overflow: hidden;
@@ -124,18 +124,19 @@ button { font: inherit; color: inherit; }
 .cell {
   position: relative;
   margin: 0; padding: 0; border: 0;
-  background: var(--bg);      /* 打てない小盤は暗いまま */
+  background: #141a17;        /* 打てない小盤は暗いまま */
   transition: background 0.15s;
   display: flex; align-items: center; justify-content: center;
 }
-/* 打てる小盤は明るく。フリーターンなら決着していない小盤が全部これになる */
-.sub.playable .cell { background: var(--surface); }
+/* 打てる小盤は黄色みを帯びた明るさと黄色い枠で示す。フリーターンなら決着していない小盤が全部これになる */
+.sub.playable .cell { background: color-mix(in srgb, var(--surface) 78%, var(--o) 22%); }
+.sub.playable::after { content: ''; position: absolute; inset: 0; z-index: 1; box-shadow: inset 0 0 0 3px var(--o); pointer-events: none; }
 .sub.playable.flash .cell { animation: sub-flash 0.5s ease-out; }
 @keyframes sub-flash { from { background: var(--o); } }
 #board .cell { cursor: pointer; touch-action: manipulation; }
 #board .cell:disabled { cursor: default; }
 @media (hover: hover) {
-  #board .sub.playable .cell:not(:disabled):hover { background: color-mix(in srgb, var(--surface) 80%, white 8%); }
+  #board .sub.playable .cell:not(:disabled):hover { background: color-mix(in srgb, var(--surface) 62%, var(--o) 38%); }
 }
 .cell.shake { animation: shake 0.28s; }
 @keyframes shake { 25% { transform: translateX(-3px); } 50% { transform: translateX(3px); } 75% { transform: translateX(-1.5px); } }
