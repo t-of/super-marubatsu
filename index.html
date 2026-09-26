@@ -41,7 +41,7 @@
         <div class="title__buttons">
           <button class="btn btn--main" id="continue" hidden>続きから</button>
           <button class="btn btn--main" id="play-pvp">ふたりで</button>
-          <button class="btn" id="play-ai" disabled aria-disabled="true">AI と対戦 <small>準備中</small></button>
+          <button class="btn" id="play-ai">AI と対戦</button>
           <button class="btn btn--quiet" id="howto">遊び方</button>
         </div>
         <p class="title__stats" id="stats"></p>
@@ -56,6 +56,23 @@
       </div>
     </section>
 
+    <!-- 強さと先手・後手（AI と対戦） -->
+    <section class="setup" id="setup" hidden>
+      <header class="setup__head">
+        <button class="icon-btn" id="setup-back" aria-label="タイトルへ">←</button>
+        <h2>AI と対戦</h2>
+        <span class="setup__spacer" aria-hidden="true"></span>
+      </header>
+      <p class="setup__note" id="setup-note" hidden>（AI の学習データを読めないため、簡易版）</p>
+      <div class="levels" id="levels" role="radiogroup" aria-label="強さ"></div>
+      <div class="sides" role="radiogroup" aria-label="先手・後手">
+        <button class="btn side-btn" data-side="x" role="radio">先手（×）</button>
+        <button class="btn side-btn" data-side="o" role="radio">後手（○）</button>
+        <button class="btn side-btn" data-side="alternate" role="radio">交互</button>
+      </div>
+      <button class="btn btn--main" id="setup-start">はじめる</button>
+    </section>
+
     <!-- 対局 -->
     <section class="game" id="game" hidden>
       <header class="top">
@@ -63,6 +80,10 @@
         <p class="turn" id="turn" aria-live="polite"></p>
         <p class="ply" id="ply"></p>
       </header>
+      <div class="ai-bar" id="ai-bar" hidden>
+        <span class="side" id="side-x">× <small id="side-x-role"></small></span>
+        <span class="side" id="side-o">○ <small id="side-o-role"></small></span>
+      </div>
       <p class="free-turn" id="free-turn" hidden>どこでも</p>
       <div class="board-wrap"></div>
       <div class="game__buttons">
@@ -76,6 +97,7 @@
         <p class="result__sub" id="result-sub"></p>
         <div class="result__buttons">
           <button class="btn btn--main" id="again">もう一度</button>
+          <button class="btn" id="swap-sides" hidden>先手後手を入れ替えて</button>
           <button class="btn" id="share-result">共有</button>
           <button class="btn" id="to-title">タイトルへ</button>
         </div>
@@ -83,6 +105,8 @@
       </div>
     </section>
   </main>
+
+  <div class="debug" id="debug" hidden></div>
 
   <!-- メニュー -->
   <dialog class="menu" id="menu">
@@ -120,6 +144,7 @@
 
   <script src="./webapp-kit/webapp-kit.js"></script>
   <script src="./js/game.js"></script>
+  <script src="./js/mcts.js"></script>
   <script src="./main.js"></script>
 </body>
 </html>

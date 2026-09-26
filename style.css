@@ -89,6 +89,20 @@ button { font: inherit; color: inherit; }
   .board--demo { display: none; }
 }
 
+/* ---- 強さと先手・後手（AI と対戦） ---- */
+.setup { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; padding-top: 4px; }
+.setup__head { display: flex; align-items: center; gap: 8px; }
+.setup__head h2 { flex: 1; margin: 0; text-align: center; font-size: 18px; }
+.setup__spacer { width: 44px; }
+.setup__note { margin: 0; text-align: center; font-size: 12px; color: var(--muted); }
+.levels { display: grid; gap: 8px; }
+.level-btn { display: flex; align-items: center; justify-content: space-between; gap: 8px; text-align: left; width: 100%; }
+.level-btn small { color: var(--muted); font-size: 12px; }
+.level-btn.selected { border-color: var(--o); background: color-mix(in srgb, var(--surface) 80%, var(--o) 14%); }
+.sides { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.side-btn { padding: 0 8px; font-size: 14px; }
+.side-btn.selected { border-color: var(--o); background: color-mix(in srgb, var(--surface) 80%, var(--o) 14%); }
+
 /* ---- 盤（対局・タイトルの見本で共通） ---- */
 .board {
   position: relative;
@@ -170,6 +184,24 @@ button { font: inherit; color: inherit; }
 .ply { margin: 0; text-align: right; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .free-turn { margin: 0; text-align: center; font-size: 12px; color: var(--o); min-height: 1.2em; }
 
+/* AI 対戦の帯: 手番の側を明るく、考えている間は小さく点滅 */
+.ai-bar { display: flex; justify-content: space-between; padding: 0 4px; font-size: 13px; color: var(--muted); }
+.ai-bar .side { display: flex; align-items: baseline; gap: 4px; }
+.ai-bar .side.active { color: var(--fg); font-weight: 700; }
+.ai-bar .side.thinking { animation: ai-blink 1s steps(2, jump-none) infinite; }
+@keyframes ai-blink { 50% { opacity: 0.35; } }
+@media (prefers-reduced-motion: reduce) {
+  .ai-bar .side.thinking { animation: none; opacity: 0.7; }
+}
+
+.debug {
+  position: fixed; right: 6px; bottom: max(6px, env(safe-area-inset-bottom));
+  padding: 3px 8px; border-radius: 8px;
+  background: rgba(0, 0, 0, 0.5); color: #fff;
+  font-size: 11px; font-variant-numeric: tabular-nums;
+  pointer-events: none; z-index: 20;
+}
+
 .board-wrap { flex: 1; min-height: 0; container-type: size; display: flex; align-items: center; justify-content: center; }
 #board { width: min(100cqw, 100cqh, 440px); }
 
@@ -187,7 +219,8 @@ button { font: inherit; color: inherit; }
 .result__head { font-size: 24px; font-weight: 800; }
 .result__head.o { color: var(--o); }
 .result__sub { font-size: 13px; color: var(--muted); }
-.result__buttons { display: grid; grid-template-columns: 1.2fr 0.8fr 1.2fr; gap: 8px; margin-top: 12px; }
+.result__buttons { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 12px; }
+.result__buttons #again { grid-column: 1 / -1; }
 .result__buttons .btn { padding: 0 6px; white-space: nowrap; font-size: 14px; }
 
 /* ---- メニュー・遊び方（dialog 共通） ---- */

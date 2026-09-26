@@ -8,7 +8,7 @@
 // keys.filter(k => k !== CACHE) のように書くと、ほかのアプリのキャッシュまで消してしまう。
 
 const PREFIX = 'super-marubatsu-';
-const VERSION = 'v1';
+const VERSION = 'v2';
 const CACHE = `${PREFIX}${VERSION}`;
 const FONT_CACHE = `${PREFIX}fonts`;
 
@@ -18,6 +18,9 @@ const SHELL = [
   './style.css',
   './main.js',
   './js/game.js',
+  './js/mcts.js',
+  './js/net.js',
+  './js/ai-worker.js',
   './manifest.webmanifest',
   './webapp-kit/webapp-kit.css',
   './webapp-kit/webapp-kit.js',
@@ -28,7 +31,16 @@ const SHELL = [
 ];
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));
+  e.waitUntil((async () => {
+    const cache = await caches.open(CACHE);
+    await cache.addAll(SHELL);
+    // ai/net.json はいまの学習が終わるまで無いことがある。無くても install を失敗させない
+    try {
+      const res = await fetch('./ai/net.json', { cache: 'no-store' });
+      if (res.ok) await cache.put('./ai/net.json', res);
+    } catch { /* まだ無い・読めない */ }
+    await self.skipWaiting();
+  })());
 });
 
 self.addEventListener('activate', (e) => {
