@@ -76,7 +76,7 @@
     if (!canPlace(s, m)) throw new Error(`打てないマス: ${m}`);
     const b = (m / 9) | 0, c = m % 9, p = s.turn;
     s.cells[p][b] |= 1 << c;
-    s.moves.push(m);
+    if (s.moves) s.moves.push(m); // AI の探索用の軽い局面（cloneState）は moves を持たない
 
     if (WIN_TABLE[s.cells[p][b]]) s.owner[p] |= 1 << b;
     else if ((s.cells[0][b] | s.cells[1][b]) === FULL) s.drawn |= 1 << b;
@@ -108,6 +108,37 @@
   // 1 手戻す
   const undo = (s) => replay(s.moves.slice(0, -1));
 
+  // ---- ここから AI の探索用（js/mcts.js が使う。動きは変えず、速さのためだけに足す） ----
+
+  // 探索中に何度も作る軽い複製。moves を持たない（place はそれを見て履歴を積まない）
+  function cloneState(s) {
+    return {
+      cells: [s.cells[0].slice(), s.cells[1].slice()],
+      owner: s.owner.slice(),
+      drawn: s.drawn,
+      turn: s.turn,
+      next: s.next,
+      over: s.over,
+      winner: s.winner,
+      draw: s.draw,
+      line: null,
+    };
+  }
+
+  // でたらめな 1 手を、打てる手の配列を作らずに選ぶ（reservoir sampling）。rand() は [0,1)
+  function randomMove(s, rand) {
+    let chosen = -1, seen = 0;
+    for (const b of legalBoards(s)) {
+      const occ = s.cells[0][b] | s.cells[1][b];
+      for (let c = 0; c < 9; c++) {
+        if ((occ >> c) & 1) continue;
+        seen++;
+        if (rand() < 1 / seen) chosen = b * 9 + c;
+      }
+    }
+    return chosen;
+  }
+
   // ---- 画面が使う小さな見方 ----
   function cellAt(s, b, c) {
     if ((s.cells[0][b] >> c) & 1) return 0;
@@ -124,6 +155,7 @@
   const SMGame = {
     LINES, newGame, place, undo, replay, canPlace, legalMoves, legalBoards,
     decided, freeTurn, cellAt, boardOwner, boardDrawn,
+    cloneState, randomMove,
   };
 
   if (typeof module !== 'undefined' && module.exports) module.exports = SMGame;
