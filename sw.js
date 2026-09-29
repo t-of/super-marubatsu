@@ -6,6 +6,7 @@
 // 注意: キャッシュ（CacheStorage）は t-of.github.io のすべてのアプリで共有されている。
 // 古いキャッシュを消すときは、必ず自分の PREFIX で始まるものだけを消す。
 // keys.filter(k => k !== CACHE) のように書くと、ほかのアプリのキャッシュまで消してしまう。
+// ブラウザの HTTP キャッシュを通さない（install は reload、fetch は no-cache）。古い main.js と新しい index.html が混ざって動かなくなるのを防ぐ。
 
 const PREFIX = 'super-marubatsu-';
 const VERSION = 'v4';
@@ -33,7 +34,7 @@ const SHELL = [
 self.addEventListener('install', (e) => {
   e.waitUntil((async () => {
     const cache = await caches.open(CACHE);
-    await cache.addAll(SHELL);
+    await cache.addAll(SHELL.map((u) => new Request(u, { cache: 'reload' })));
     // ai/net.json はいまの学習が終わるまで無いことがある。無くても install を失敗させない
     try {
       const res = await fetch('./ai/net.json', { cache: 'no-store' });
@@ -65,7 +66,7 @@ self.addEventListener('fetch', (e) => {
 async function networkFirst(req) {
   const cache = await caches.open(CACHE);
   try {
-    const res = await fetch(req);
+    const res = await fetch(req, { cache: 'no-cache' });
     if (res.ok) cache.put(req, res.clone());
     return res;
   } catch {
